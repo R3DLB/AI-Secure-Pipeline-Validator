@@ -1,5 +1,6 @@
 name: Security Pipeline (v0.1)
-on: [push, pull_request]
+on: 
+  workflow_call: 
 jobs:
   secrets:
     name: Secrets scan (gitleaks)
