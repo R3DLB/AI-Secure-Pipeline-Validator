@@ -28,6 +28,7 @@ A **Gate** is:
 
 ## Gates documentation
 - [Gate 01 — Secrets Scanning (Gitleaks)](docs/gates/01-secrets-scanning.md)
+- [Gate 02 — SAST (Semgrep)](docs/gates/02-sast-semgrep.md)
 
 ---
 
@@ -35,6 +36,7 @@ A **Gate** is:
 | Version | Gate | Why it matters | Tool | Output |
 | --- | --- | --- | --- | --- |
 | v0.1 | Secrets Scanning | Prevents accidental credential leakage | Gitleaks | `evidence/gitleaks.json` |
+| v0.2 | SAST | Finds risky code patterns early | Semgrep | `evidence/semgrep.json` |
 
 ---
 
@@ -66,6 +68,6 @@ on: [push, pull_request]
 
 jobs:
   security:
-    uses: R3DLB/AI-Secure-Pipeline-Validator/.github/workflows/security.yml@v0.1.1
+    uses: R3DLB/AI-Secure-Pipeline-Validator/.github/workflows/security.yml@v0.2.0
 ```
 3. ✅ Done.
