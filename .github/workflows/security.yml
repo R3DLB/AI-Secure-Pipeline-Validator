@@ -60,7 +60,7 @@ jobs:
           fi
           set +e
           docker run --rm -v "${{ github.workspace }}:/repo" semgrep/semgrep:latest \
-            semgrep --config p/security-audit --severity ERROR,WARNING --error --json --output /repo/evidence/semgrep.json $BASELINE_ARG /repo
+            semgrep --config p/security-audit --severity ERROR --severity WARNING --error --json --output /repo/evidence/semgrep.json $BASELINE_ARG /repo
           EXIT_CODE=$?
           echo "exit_code=$EXIT_CODE" >> $GITHUB_OUTPUT
           set -e
