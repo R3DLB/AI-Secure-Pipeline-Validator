@@ -1,11 +1,14 @@
-import os
+from flask import Flask, request
+
+app = Flask(__name__)
 
 
-def run(cmd):
-    # Intentional vuln for SAST demo: command injection via os.system
-    os.system(cmd)
+@app.get("/")
+def index():
+    # Intentional vuln for SAST demo: reflected XSS
+    name = request.args.get("name", "")
+    return f"<h1>Hello {name}</h1>"
 
 
 if __name__ == "__main__":
-    user_input = input("cmd> ")
-    run(user_input)
+    app.run(debug=True)
