@@ -52,6 +52,7 @@ def _load_json(path: str):
 
 
 def _print_gitleaks(path: str):
+    print("== Secrets Scan (Gitleaks) ==")
     data = _load_json(path)
     if data is None:
         _table("Gitleaks", ["Status"], [["no report found"]])
@@ -78,6 +79,7 @@ def _print_gitleaks(path: str):
 
 
 def _print_semgrep(path: str):
+    print("\n== SAST Scan (Semgrep) ==")
     data = _load_json(path)
     if data is None:
         _table("Semgrep", ["Status"], [["no report found"]])
@@ -113,10 +115,42 @@ def _print_semgrep(path: str):
         print(f"... {len(results) - 10} more\n")
 
 
+def _print_osv(path: str):
+    print("\n== SCA Scan (OSV-Scanner) ==")
+    data = _load_json(path)
+    if data is None:
+        _table("OSV-Scanner", ["Status"], [["no report found"]])
+        return
+    results = data.get("results", []) or []
+    rows = []
+    vuln_count = 0
+    for r in results:
+        for pkg in r.get("packages", []) or []:
+            p = pkg.get("package", {}) or {}
+            name = p.get("name") or "unknown"
+            version = pkg.get("version") or "unknown"
+            vulns = pkg.get("vulnerabilities", []) or []
+            if vulns:
+                vuln_count += len(vulns)
+                rows.append([name, version, len(vulns)])
+    print(f"OSV summary: {vuln_count} vulnerabilities")
+    if not rows:
+        rows = [["-", "-", 0]]
+    _table(
+        "OSV-Scanner",
+        ["Package", "Version", "Vulns"],
+        rows[:10],
+        max_widths=[36, 16, 7],
+    )
+    if len(rows) > 10:
+        print(f"... {len(rows) - 10} more\n")
+
+
 def main():
     print("Quality gate (manual review)\n")
     _print_gitleaks("evidence/gitleaks/gitleaks.json")
     _print_semgrep("evidence/semgrep/semgrep.json")
+    _print_osv("evidence/osv/osv.json")
     print("Result: MANUAL REVIEW REQUIRED")
 
 
