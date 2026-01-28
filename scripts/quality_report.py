@@ -63,16 +63,15 @@ def _print_gitleaks(path: str):
         rule_id = f.get("RuleID") or f.get("Rule") or "unknown"
         file_path = _rel_path(f.get("File") or f.get("file") or "unknown")
         line = f.get("StartLine") or f.get("line") or 0
-        desc = f.get("Description") or f.get("Message") or ""
         match = f.get("Match") or f.get("Secret") or f.get("secret") or ""
-        rows.append([rule_id, f"{file_path}:{line}", match, desc])
+        rows.append([rule_id, f"{file_path}:{line}", match])
     if not rows:
-        rows = [["-", "-", "-", "no findings"]]
+        rows = [["-", "-", "no findings"]]
     _table(
         "Gitleaks",
-        ["Rule", "Location", "Match", "Message"],
+        ["Rule", "Location", "Match"],
         rows,
-        max_widths=[22, 28, 24, 60],
+        max_widths=[28, 36, 60],
     )
     if len(findings) > 10:
         print(f"... {len(findings) - 10} more\n")
@@ -93,7 +92,6 @@ def _print_semgrep(path: str):
         file_path = _rel_path(r.get("path") or "unknown")
         start = r.get("start", {}) or {}
         line = start.get("line") or 0
-        msg = extra.get("message") or ""
         meta = extra.get("metadata", {}) or {}
         vuln_class = (
             (meta.get("vulnerability_class") or [""])[0]
@@ -102,14 +100,14 @@ def _print_semgrep(path: str):
             or (meta.get("cwe") or [""])[0]
             or "n/a"
         )
-        rows.append([sev, vuln_class, rule_id, f"{file_path}:{line}", msg])
+        rows.append([sev, vuln_class, rule_id, f"{file_path}:{line}"])
     if not rows:
-        rows = [["-", "-", "-", "-", "no findings"]]
+        rows = [["-", "-", "-", "no findings"]]
     _table(
         "Semgrep",
-        ["Severity", "Class", "Rule", "Location", "Message"],
+        ["Severity", "Class", "Rule", "Location"],
         rows,
-        max_widths=[8, 18, 36, 28, 60],
+        max_widths=[8, 26, 60, 36],
     )
     if len(results) > 10:
         print(f"... {len(results) - 10} more\n")
