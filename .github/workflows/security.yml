@@ -88,4 +88,27 @@ jobs:
         if: steps.semgrep.outputs.exit_code != '0'
         run: exit 1
     
-      
+  quality_gate:
+    name: Quality gate (policy)
+    runs-on: ubuntu-latest
+    needs: [secrets, sast]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download evidence (gitleaks)
+        uses: actions/download-artifact@v4
+        with:
+          name: evidence-gitleaks
+          path: evidence/gitleaks
+
+      - name: Download evidence (semgrep)
+        uses: actions/download-artifact@v4
+        with:
+          name: evidence-semgrep
+          path: evidence/semgrep
+
+      - name: Evaluate policy
+        shell: bash
+        run: |
+          python3 scripts/aggregate_evidence.py .security/policy.json

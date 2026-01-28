@@ -1,0 +1,12 @@
+{
+  "max_findings": {
+    "CRITICAL": 0,
+    "HIGH": 0,
+    "MEDIUM": 5,
+    "LOW": 10
+  },
+  "allowlist": {
+    "rule_ids": []
+  },
+  "fail_on_unknown_severity": true
+}
