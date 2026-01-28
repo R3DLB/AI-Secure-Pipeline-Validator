@@ -1,5 +1,7 @@
 name: Security Pipeline (v0.2)
 on: 
+  push:
+  pull_request:
   workflow_call: 
 jobs:
   secrets:
