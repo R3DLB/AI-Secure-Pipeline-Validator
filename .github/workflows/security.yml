@@ -38,10 +38,6 @@ jobs:
         with:
           name: evidence-gitleaks
           path: evidence/
-      
-      - name: Fail if leaks were found
-        if: steps.gitleaks.outputs.exit_code != '0'
-        run: exit 1
 
   sast:
     name: SAST scan (semgrep)
@@ -83,15 +79,12 @@ jobs:
         with:
           name: evidence-semgrep
           path: evidence/
-
-      - name: Fail if findings were found
-        if: steps.semgrep.outputs.exit_code != '0'
-        run: exit 1
     
   quality_gate:
     name: Quality gate (policy)
     runs-on: ubuntu-latest
     needs: [secrets, sast]
+    if: ${{ always() }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
