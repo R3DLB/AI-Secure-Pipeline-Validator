@@ -52,6 +52,7 @@ def main(argv):
     counts = {}
     unknown = 0
     filtered = 0
+    kept = []
     for f in findings:
         rule_id = f.get("rule_id") or "unknown"
         if rule_id in allowlist:
@@ -61,31 +62,48 @@ def main(argv):
         counts[sev] = counts.get(sev, 0) + 1
         if sev not in max_findings:
             unknown += 1
+        kept.append(f)
 
     failed = False
+    violated = []
     for sev, max_allowed in max_findings.items():
         if max_allowed is None:
             continue
         if isinstance(max_allowed, int) and max_allowed >= 0:
             if counts.get(sev, 0) > max_allowed:
                 failed = True
+                violated.append((sev, counts.get(sev, 0), max_allowed))
 
     if fail_on_unknown and unknown > 0:
         failed = True
 
-    print("Policy evaluation")
-    print(f"  Evidence files: {len(evidence_paths)}")
-    print(f"  Findings total: {len(findings)}")
-    print(f"  Findings filtered (allowlist): {filtered}")
+    print("Quality gate evaluation")
+    print(f"- Evidence files: {len(evidence_paths)}")
+    print(f"- Findings total: {len(findings)}")
+    print(f"- Findings filtered (allowlist): {filtered}")
+    print("- Counts by severity:")
     for sev in sorted(counts.keys()):
-        print(f"  {sev}: {counts[sev]}")
+        limit = max_findings.get(sev, "n/a")
+        print(f"  - {sev}: {counts[sev]} (limit: {limit})")
     if fail_on_unknown:
-        print(f"  Unknown severity count: {unknown}")
+        print(f"- Unknown severity count: {unknown}")
 
+    if violated:
+        print("- Violations:")
+        for sev, count, limit in violated:
+            print(f"  - {sev}: {count} > {limit}")
     if failed:
-        print("Result: FAIL")
+        print("- Result: FAIL")
+        print("- Top findings (first 10):")
+        for f in kept[:10]:
+            sev = (f.get("severity") or "UNKNOWN").upper()
+            rule_id = f.get("rule_id") or "unknown"
+            path = f.get("path") or "unknown"
+            line = f.get("line") or 0
+            msg = f.get("message") or ""
+            print(f"  - [{sev}] {rule_id} {path}:{line} {msg}")
         sys.exit(1)
-    print("Result: PASS")
+    print("- Result: PASS")
     return 0
 
 
